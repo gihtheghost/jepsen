@@ -13,6 +13,7 @@ x-node:
   volumes:
     - "/sys/fs/cgroup:/sys/fs/cgroup:rw"
     - "jepsen-shared:/var/jepsen/shared"
+    - "/home/gih/Documents/Ufscar/IC/treplica:/opt/treplicadb"
   networks:
     - jepsen
   cap_add:
@@ -62,5 +63,6 @@ services:
       - jepsen
     volumes:
       - "jepsen-shared:/var/jepsen/shared"
+      - "/home/gih/Documents/Ufscar/IC/treplica:/opt/treplicadb"
     stop_signal: SIGRTMIN+3
 %%DBS%%
