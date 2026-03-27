@@ -6,18 +6,29 @@
              [db :as db]
              [tests :as tests]]
             [jepsen.control.util :as cu]
-            [jepsen.os.debian :as debian]))
+            [jepsen.os.debian :as debian]
+            [jepsen.control :as c]))
 
+(def dir     "/opt/treplicadb")
+(def pidfile (str dir "/treplicadb.pid"))
 
-(defn db
-  "Etcd DB for a particular version."
-  [version]
+(defn db 
+  "Treplica DB for a particular version." ;isso aqui n vai dar certo pq n roda em backgroung, precisa de entrada do terminal
+  []
   (reify db/DB
     (setup! [_ test node]
-      (info node "installing etcd" version))
+      (info node "iniciando treplica")
+      (let [state-dir (str "opt/treplicadb/state/" node)] ; define um state/n1 para cada node
+        
+        (c/su
+         ; cria um state/n1 para cada node no volume compartilhado
+         (c/exec :mkdir :-p state-dir)
+         (c/cd dir
+               (c/exec :java :-cp "dist/treplica-0.5.0.jar:lib/slf4j-api-2.0.17.jar:lib/slf4j-nop-2.0.17.jar" "src.main.br.unicamp.treplica.examples.ReplicatedMap"
+                       "5" "200" state-dir)))))
 
     (teardown! [_ test node]
-      (info node "tearing down etcd"))))
+      (info node "terminando treplica"))))
 
 (defn etcd-test
   "Given an options map from the command line runner (e.g. :nodes, :ssh,
@@ -27,7 +38,7 @@
          opts
          {:name "etcd"
           :os   debian/os
-          :db   (db "v3.1.5")
+          :db   (db)
           :pure-generators true}))
 
 (defn -main
