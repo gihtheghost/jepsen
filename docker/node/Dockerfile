@@ -33,10 +33,10 @@ RUN sed -i "s/#PermitRootLogin prohibit-password/PermitRootLogin yes/g" /etc/ssh
 # Enable SSH server
 ENV DEBBASE_SSH enabled
 
-# Install Jepsen deps e o Java para rodar treplica
+# Install Jepsen deps, o Java para rodar treplica, git para clonar o repositorio e ant pra fazer o build
 RUN apt-get -qy update && \
     apt-get -qy install \
-        build-essential bzip2 ca-certificates curl dirmngr dnsutils faketime iproute2 iptables iputils-ping libzip4 logrotate lsb-release man man-db netcat-openbsd net-tools ntpdate psmisc python3 rsyslog sudo tar tcpdump unzip vim wget default-jdk
+        build-essential bzip2 ca-certificates curl dirmngr dnsutils faketime iproute2 iptables iputils-ping libzip4 logrotate lsb-release man man-db netcat-openbsd net-tools ntpdate psmisc python3 rsyslog sudo tar tcpdump unzip vim wget default-jdk git ant
 
 EXPOSE 22
 CMD ["/usr/local/bin/boot-debian-base"]
