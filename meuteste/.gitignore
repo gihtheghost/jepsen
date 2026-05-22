@@ -1,3 +1,5 @@
+treplica/
+meuteste/.clj-kondo/.cache/
 /target
 /classes
 /checkouts

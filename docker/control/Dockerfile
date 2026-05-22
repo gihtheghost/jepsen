@@ -15,9 +15,11 @@ ENV LEIN_ROOT true
 #
 # Jepsen dependencies
 #
+
+# adicionei o ant para poder compilar o database-with-treplica
 RUN apt-get -qy update && \
     apt-get -qy install \
-    curl dos2unix emacs git gnuplot graphviz htop iputils-ping libjna-java pssh screen vim wget && \
+    curl dos2unix emacs git gnuplot graphviz htop iputils-ping libjna-java pssh screen vim wget ant && \
     curl -L https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.8%2B9/OpenJDK21U-jdk_x64_linux_hotspot_21.0.8_9.tar.gz | tar -xz --strip-components=1 -C /usr/local/
 
 RUN wget https://raw.githubusercontent.com/technomancy/leiningen/stable/bin/lein && \
@@ -35,5 +37,9 @@ ADD ./bashrc /root/.bashrc
 ADD ./init.sh /init.sh
 RUN dos2unix /init.sh /root/.bashrc \
     && chmod +x /init.sh
+
+# baixando database with treplica, compilando e colocando como dependencia
+RUN git clone https://github.com/gihtheghost/database-with-treplica.git /database-with-treplica
+RUN cd /database-with-treplica && ant build
 
 CMD /init.sh

@@ -2,7 +2,8 @@
   :description "A Jepsen test for etcd"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
+  :java-source-paths ["java_src"]
   :main meuteste.core
   :dependencies [[org.clojure/clojure "1.12.4"]
-                 [jepsen "0.3.9"]
-                 [verschlimmbesserung "0.1.3"]])
+                 [jepsen "0.3.9"]]
+  )
