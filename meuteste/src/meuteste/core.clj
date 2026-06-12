@@ -1,5 +1,5 @@
 (ns meuteste.core
-  (:import [client Client])
+  (:import [client Client]) 
   (:require [clojure.tools.logging :refer :all]
             [clojure.string :as str]
             [jepsen [cli :as cli]
@@ -7,18 +7,26 @@
              [control :as c]
              [db :as db]
              [tests :as tests]
-             [generator :as gen]] 
+             [generator :as gen]
+             [checker :as checker]] 
             [jepsen.control.util :as cu]
             [jepsen.os.debian :as debian]
-            [jepsen.control :as c]
-            [jepsen.generator :as gen]))
+            [jepsen.control.net :as net]
+            [knossos.model :as model]
+            [jepsen.checker :as checker])
+  (:import (knossos.model Model)))
 
 (def dir     "/opt/treplicadb")
 (def pidfile (str dir "/treplicadb.pid"))
 (def logfile (str dir "/server.log"))
 
 (defn r   [_ _] {:type :invoke, :f :read, :value nil})
-(defn w   [_ _] {:type :invoke, :f :write, :value (rand-int 5)})
+(defn w   [_ _] {:type :invoke, :f :write, :value (str (rand-int 5))})
+
+(defn parse-long-nil
+  "Parses a string to a Long. Passes through `nil`."
+  [s]
+  (when s (parse-long s)))
 
 (defn db
   "Treplica DB setup and teardown."
@@ -46,7 +54,9 @@
            :match-executable? true
            :exec "/usr/bin/java"}
           "/usr/bin/java" "-cp" "build/classes:lib/*" "src.database.Server"
-          "5" "200" state-dir "6666"))))
+          "5" "200" state-dir "6666")))
+          
+          (Thread/sleep 10000))
 
     (teardown! [_ test node]
       (info node "terminando database-with-treplica")
@@ -61,7 +71,7 @@
 
 (defrecord TreplicaClient [conn]
   j-client/Client
-  (open! [this test node]
+  (open! [this test node] 
     (let [java-client (Client. node 6666)]
       (.connect java-client)
       (assoc this :conn java-client))) ; assoc a instancia do cliente com o conn
@@ -69,9 +79,10 @@
   (setup! [this test])
 
   (invoke! [this test op]
-           (let [c (:conn this)]
-           (case (:f op)
-             :read (assoc op :type :ok, :value (.get c "foo")))))
+    (case (:f op)
+      :read (assoc op :type :ok, :value (.get conn "foo"))
+      :write (do (.put conn "foo" (:value op))
+                 (assoc op :type :ok))))
 
   (teardown! [this test])
 
@@ -89,7 +100,11 @@
           :db   (db)
           :pure-generators true
           :client (TreplicaClient. nil)
-          :generator (->> r
+          :checker (checker/compose
+                    {:perf (checker/perf)
+                     :linear (checker/linearizable {:model (model/register)
+                                                    :algorithm :linear})})
+          :generator (->> (gen/mix [r w])
                           (gen/stagger 1)
                           (gen/nemesis nil)
                           (gen/time-limit 15))}))

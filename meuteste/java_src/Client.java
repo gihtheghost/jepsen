@@ -24,6 +24,7 @@ public class Client {
     //cria o sockcet
     public void connect() throws IOException {
         this.socket = new Socket(this.host, this.port);
+        System.out.println("Socket conectado!");
         this.out = new PrintWriter(socket.getOutputStream(), true);
         this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
@@ -40,8 +41,11 @@ public class Client {
 
     public String get(String key){
         try {
-            out.println("g" + " " + key);
+            System.out.println("Chamou get");
+            out.println("g" + " " + key + "\n");
+            System.out.println("fez o out");
             String response = in.readLine();
+            System.out.println("Recebeu resposta do servidor");
             return response;
         } catch (IOException e) {
             return ERRO + e.getMessage();
@@ -99,7 +103,8 @@ public class Client {
     
     public static void main(String[] args) throws IOException {
 
-        Client c = new Client("localhost", 6666);
+        String host = args[0];
+        Client c = new Client(host, 6666);
         c.connect();
         BufferedReader terminal =
             new BufferedReader(new InputStreamReader(System.in));
