@@ -1,6 +1,6 @@
 # Aplicação de testes Jepsen dobre o framework de replicação Treplica
 
-Este projeto consiste em um fork do projeto Jepsen original para o desenvolvimento de novas implementações com o objetivo de testar a consistência de um SGBD chave-valor contruído com o framework de replicação Treplica.
+Este projeto consiste em um fork do projeto Jepsen original para o desenvolvimento de novas implementações com o objetivo de testar a consistência de um SGBD chave-valor construído com o framework de replicação Treplica.
 
 # Jepsen
 
