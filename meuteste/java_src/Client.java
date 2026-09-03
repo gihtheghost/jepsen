@@ -41,11 +41,9 @@ public class Client {
 
     public String get(String key){
         try {
-            System.out.println("Chamou get");
             out.println("g" + " " + key + "\n");
-            System.out.println("fez o out");
             String response = in.readLine();
-            System.out.println("Recebeu resposta do servidor");
+            System.out.println("Resposta do servidor:");
             return response;
         } catch (IOException e) {
             return ERRO + e.getMessage();
